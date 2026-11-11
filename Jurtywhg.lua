@@ -1,5 +1,5 @@
 -- ==========================================
--- KEREN HUB - BARISTA ULTIMATE PRO ROUTE (FIXED UI)
+-- KEREN HUB - BARISTA ULTIMATE PRO ROUTE (CLEAN FIX)
 -- ==========================================
 
 local Success, WindUI = pcall(function()
@@ -7,7 +7,6 @@ local Success, WindUI = pcall(function()
 end)
 
 if not Success or not WindUI then
-    warn("[Keren Hub] Gagal memuat WindUI, mencoba menggunakan metode alternatif...")
     WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 end
 

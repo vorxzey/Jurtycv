@@ -1,8 +1,15 @@
 -- ==========================================
--- KEREN HUB - BARISTA ULTIMATE PRO ROUTE
+-- KEREN HUB - BARISTA ULTIMATE PRO ROUTE (FIXED UI)
 -- ==========================================
 
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local Success, WindUI = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+end)
+
+if not Success or not WindUI then
+    warn("[Keren Hub] Gagal memuat WindUI, mencoba menggunakan metode alternatif...")
+    WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+end
 
 local Window = WindUI:CreateWindow({
     Title = "Keren Hub ☕ | Pro Barista",
@@ -23,15 +30,11 @@ local LocalPlayer = Players.LocalPlayer
 local AntiAfkEnabled = false
 local AutoBaristaEnabled = false
 local InstantPromptEnabled = false
-local AutoCleanEnabled = true
 local baristaThread = nil
-
--- Menyimpan Token Aktif dari Game (Sesuai BaristaClient)
 local CurrentToken = nil
 
 local BaristaEvent = ReplicatedStorage:WaitForChild("BaristaAssets"):WaitForChild("Events"):WaitForChild("BaristaEvent")
 
--- Tangkap Token Otomatis dari Event Game
 BaristaEvent.OnClientEvent:Connect(function(action, data)
     if action == "JobStarted" or action == "SpawnNPC" then
         if type(data) == "table" and data.Token then
@@ -40,7 +43,6 @@ BaristaEvent.OnClientEvent:Connect(function(action, data)
     end
 end)
 
--- Koordinat Sesuai Rute Presisi
 local COORDS = {
     ShiftSpot     = CFrame.new(-4992.262, 4.287, -716.253),
     CoffeeMachine = CFrame.new(-4997.648, 4.287, -794.613),
@@ -53,7 +55,6 @@ local FarmTab = Window:Tab({ Title = "Auto Farm", Icon = "coffee" })
 local MainSection = MainTab:Section({ Title = "Pengaturan Umum" })
 local FarmSection = FarmTab:Section({ Title = "Barista Automation" })
 
--- LOGIC ANTI-AFK
 task.spawn(function()
     LocalPlayer.Idled:Connect(function()
         if AntiAfkEnabled then
@@ -64,7 +65,6 @@ task.spawn(function()
     end)
 end)
 
--- INSTANT PROXIMITY PROMPT
 task.spawn(function()
     while true do
         if InstantPromptEnabled then
@@ -87,7 +87,6 @@ task.spawn(function()
     end
 end)
 
--- PILIH JOB BARISTA
 local function selectBaristaJob()
     pcall(function()
         local Event = ReplicatedStorage:FindFirstChild("JobEvents") and ReplicatedStorage.JobEvents:FindFirstChild("TeamChangeRequest")
@@ -97,7 +96,6 @@ local function selectBaristaJob()
     end)
 end
 
--- TWEEN HALUS DENGAN SPEED 2 (SANGAT AMAN)
 local function smoothMoveTo(targetCFrame)
     pcall(function()
         local char = LocalPlayer.Character
@@ -105,7 +103,7 @@ local function smoothMoveTo(targetCFrame)
         if not hrp then return end
 
         local distance = (hrp.Position - targetCFrame.Position).Magnitude
-        local speed = 2 -- Kecepatan lambat anti-cheat
+        local speed = 2
         local duration = distance / speed
 
         local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
@@ -116,7 +114,6 @@ local function smoothMoveTo(targetCFrame)
     end)
 end
 
--- HELPER PROMPT
 local function fireNearestPrompt()
     pcall(function()
         local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -140,7 +137,6 @@ local function fireNearestPrompt()
     end)
 end
 
--- SIKLUS UTAMA AUTO FARM BERDASARKAN REMOTE ASLI
 local function startBaristaFarm()
     if baristaThread then task.cancel(baristaThread) end
 
@@ -151,19 +147,16 @@ local function startBaristaFarm()
 
         while AutoBaristaEnabled do
             pcall(function()
-                -- 1. Tween ke Tempat Shift
                 if not AutoBaristaEnabled then break end
                 smoothMoveTo(COORDS.ShiftSpot)
                 task.wait(0.5)
                 fireNearestPrompt()
                 task.wait(1.0)
 
-                -- 2. Tween ke Mesin Kopi & Instant Brew via Remote
                 if not AutoBaristaEnabled then break end
                 smoothMoveTo(COORDS.CoffeeMachine)
                 task.wait(0.5)
                 
-                -- Tembak remote asli game untuk bikin kopi instan
                 BaristaEvent:FireServer("TryBrew")
                 task.wait(0.3)
                 if CurrentToken then
@@ -171,7 +164,6 @@ local function startBaristaFarm()
                 end
                 task.wait(1.0)
 
-                -- 3. Tween ke Pelanggan & Serve Order via Remote
                 if not AutoBaristaEnabled then break end
                 smoothMoveTo(COORDS.Customer)
                 task.wait(0.5)
@@ -183,7 +175,6 @@ local function startBaristaFarm()
     end)
 end
 
--- TOGGLE UI
 FarmSection:Toggle({
     Title = "Auto Farm Barista (Pro Route)",
     Desc = "Speed 2 + Remote Bypass Minigame",

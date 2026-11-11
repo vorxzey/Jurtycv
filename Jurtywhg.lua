@@ -1,22 +1,19 @@
 -- ==========================================
--- KEREN HUB - BARISTA ULTIMATE PRO ROUTE (CLEAN FIX)
+-- KEREN HUB - BARISTA ULTIMATE (RAYFIELD UI)
 -- ==========================================
 
-local Success, WindUI = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
-end)
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-if not Success or not WindUI then
-    WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
-end
-
-local Window = WindUI:CreateWindow({
-    Title = "Keren Hub ☕ | Pro Barista",
-    Icon = "coffee",
-    Author = "by Kenzo",
-    Folder = "KerenBaristaProConfig",
-    Transparent = false,
-    Theme = "Dark"
+local Window = Rayfield:CreateWindow({
+    Name = "Keren Hub ☕ | Pro Barista",
+    LoadingTitle = "Keren Hub Loading...",
+    LoadingSubtitle = "by Kenzo",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "KerenBaristaConfig",
+        FileName = "BaristaSettings"
+    },
+    KeySystem = false,
 })
 
 local Players = game:GetService("Players")
@@ -48,12 +45,10 @@ local COORDS = {
     Customer      = CFrame.new(-4996.451, 4.287, -760.959)
 }
 
-local MainTab = Window:Tab({ Title = "Main", Icon = "zap" })
-local FarmTab = Window:Tab({ Title = "Auto Farm", Icon = "coffee" })
+local MainTab = Window:CreateTab("Main", "zap")
+local FarmTab = Window:CreateTab("Auto Farm", "coffee")
 
-local MainSection = MainTab:Section({ Title = "Pengaturan Umum" })
-local FarmSection = FarmTab:Section({ Title = "Barista Automation" })
-
+-- LOGIC ANTI-AFK
 task.spawn(function()
     LocalPlayer.Idled:Connect(function()
         if AntiAfkEnabled then
@@ -64,6 +59,7 @@ task.spawn(function()
     end)
 end)
 
+-- INSTANT PROXIMITY PROMPT
 task.spawn(function()
     while true do
         if InstantPromptEnabled then
@@ -141,7 +137,7 @@ local function startBaristaFarm()
 
     baristaThread = task.spawn(function()
         selectBaristaJob()
-        WindUI:Notify({ Title = "Barista", Content = "Memulai shift Barista...", Duration = 2 })
+        Rayfield:Notify({ Title = "Barista", Content = "Memulai shift Barista...", Duration = 2 })
         task.wait(1.5)
 
         while AutoBaristaEnabled do
@@ -174,47 +170,48 @@ local function startBaristaFarm()
     end)
 end
 
-FarmSection:Toggle({
-    Title = "Auto Farm Barista (Pro Route)",
-    Desc = "Speed 2 + Remote Bypass Minigame",
-    Value = false,
+-- UI ELEMENTS (RAYFIELD)
+FarmTab:CreateToggle({
+    Name = "Auto Farm Barista (Pro Route)",
+    CurrentValue = false,
+    Flag = "AutoFarmToggle",
     Callback = function(State)
         AutoBaristaEnabled = State
         if State then
-            WindUI:Notify({ Title = "Status", Content = "Auto Farm Pro Aktif!", Duration = 2 })
+            Rayfield:Notify({ Title = "Status", Content = "Auto Farm Pro Aktif!", Duration = 2 })
             startBaristaFarm()
         else
-            WindUI:Notify({ Title = "Status", Content = "Auto Farm Dimatikan.", Duration = 2 })
+            Rayfield:Notify({ Title = "Status", Content = "Auto Farm Dimatikan.", Duration = 2 })
             if baristaThread then
                 task.cancel(baristaThread)
                 baristaThread = nil
             end
         end
-    end
+    end,
 })
 
-FarmSection:Toggle({
-    Title = "Instant Proximity Prompt",
-    Desc = "Ubah hold duration prompt jadi 0",
-    Value = false,
+FarmTab:CreateToggle({
+    Name = "Instant Proximity Prompt",
+    CurrentValue = false,
+    Flag = "InstantPromptToggle",
     Callback = function(State)
         InstantPromptEnabled = State
-        WindUI:Notify({ Title = "Prompt", Content = State and "Aktif!" or "Mati.", Duration = 2 })
-    end
+        Rayfield:Notify({ Title = "Prompt", Content = State and "Aktif!" or "Mati.", Duration = 2 })
+    end,
 })
 
-MainSection:Toggle({
-    Title = "Anti-AFK",
-    Desc = "Mencegah kick karena AFK",
-    Value = false,
+MainTab:CreateToggle({
+    Name = "Anti-AFK",
+    CurrentValue = false,
+    Flag = "AntiAfkToggle",
     Callback = function(State)
         AntiAfkEnabled = State
-        WindUI:Notify({ Title = "Anti-AFK", Content = State and "Aktif!" or "Mati.", Duration = 2 })
-    end
+        Rayfield:Notify({ Title = "Anti-AFK", Content = State and "Aktif!" or "Mati.", Duration = 2 })
+    end,
 })
 
-WindUI:Notify({
+Rayfield:Notify({
     Title = "Keren Hub Ready",
-    Content = "Script Pro Barista siap gaspol! ☕🚀",
+    Content = "Script Pro Barista (Rayfield) siap gaspol! ☕🚀",
     Duration = 3
 })
